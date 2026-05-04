@@ -1,19 +1,21 @@
 {
-  "name": "CRM de Ligações",
-  "short_name": "CRM Ligações",
-  "description": "CRM mobile-first para leads, clientes, redes, retornos e backup local.",
+  "name": "CRM Vendas",
+  "short_name": "CRM Vendas",
+  "description": "CRM mobile para controle diário de clientes, retornos e vendas.",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f4f1ea",
-  "theme_color": "#111827",
+  "background_color": "#f2f4f7",
+  "theme_color": "#e86d00",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "https://dummyimage.com/192x192/e86d00/ffffff.png&text=CRM",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "https://dummyimage.com/512x512/e86d00/ffffff.png&text=CRM",
       "sizes": "512x512",
       "type": "image/png"
     }
