@@ -7,9 +7,10 @@
 
   <meta name="theme-color" content="#e86d00" />
   <meta name="color-scheme" content="light" />
-  <link rel="manifest" href="./manifest.json" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="CRM Vendas" />
+
+  <link rel="manifest" href="./manifest.json" />
 
   <style>
     :root {
@@ -291,10 +292,6 @@
       color: white !important;
     }
 
-    .btn-primary:active {
-      background: var(--orange-dark) !important;
-    }
-
     .btn-secondary {
       background: #9aa9bc !important;
       color: white !important;
@@ -440,10 +437,6 @@
       white-space: pre-wrap;
     }
 
-    .hidden {
-      display: none !important;
-    }
-
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -486,13 +479,6 @@
       height: 1px;
       background: var(--border);
       margin: 16px 0;
-    }
-
-    .mini-link {
-      color: var(--orange);
-      font-weight: 900;
-      text-decoration: none;
-      font-size: 13px;
     }
 
     .danger-zone {
@@ -723,12 +709,12 @@
             <div class="grid-2">
               <div class="field">
                 <label>Telefone</label>
-                <input id="client-phone" class="input" placeholder="Telefone" />
+                <input id="client-phone" class="input" placeholder="Telefone extra/opcional" />
               </div>
 
               <div class="field">
                 <label>WhatsApp</label>
-                <input id="client-whatsapp" class="input" placeholder="WhatsApp" />
+                <input id="client-whatsapp" class="input" placeholder="Número usado para WhatsApp e ligação" />
               </div>
             </div>
 
@@ -788,12 +774,12 @@
             <div class="grid-2">
               <div class="field">
                 <label>Telefone</label>
-                <input id="network-phone" class="input" placeholder="Telefone" />
+                <input id="network-phone" class="input" placeholder="Telefone extra/opcional" />
               </div>
 
               <div class="field">
                 <label>WhatsApp</label>
-                <input id="network-whatsapp" class="input" placeholder="WhatsApp" />
+                <input id="network-whatsapp" class="input" placeholder="Número usado para WhatsApp e ligação" />
               </div>
             </div>
 
@@ -822,6 +808,7 @@
 
           <div class="notice-card">
             <button class="btn btn-primary" onclick="exportarBackup()">⬇️ Exportar backup</button>
+            <button class="btn btn-light" style="margin-top:10px" onclick="exportarClientesExcel()">📊 Exportar clientes para Excel</button>
 
             <div class="divider"></div>
 
@@ -860,7 +847,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "crm_vendas_mobile_v3";
+    const STORAGE_KEY = "crm_vendas_mobile_v4";
 
     const STATUS = {
       sem_ligar: { label: "Ainda sem ligar", color: "", emoji: "⚪" },
@@ -892,12 +879,23 @@
       montarSelectRedes();
       configurarEventos();
       renderizarTudo();
+      registrarServiceWorker();
     }
 
     function carregarEstado() {
-      const rawV3 = localStorage.getItem("crm_vendas_mobile_v3");
-      const rawV2 = localStorage.getItem("crm_vendas_mobile_v2");
-      const raw = rawV3 || rawV2;
+      const possibleKeys = [
+        "crm_vendas_mobile_v4",
+        "crm_vendas_mobile_v3",
+        "crm_vendas_mobile_v2",
+        "crm_vendas_mobile_v1"
+      ];
+
+      let raw = null;
+
+      for (const key of possibleKeys) {
+        raw = localStorage.getItem(key);
+        if (raw) break;
+      }
 
       if (!raw) {
         return {
@@ -1307,10 +1305,9 @@
       const n = redeDoCliente(c);
       const contato = contatoEfetivo(c);
 
-      const phone = contato.phone;
       const whatsapp = contato.whatsapp;
 
-      const telLink = criarTelLink(phone);
+      const telLink = criarTelLink(whatsapp);
       const zapLink = criarWhatsappLink(whatsapp);
 
       return `
@@ -1339,8 +1336,8 @@
           ${c.notes ? `<div class="sale-note">${escapeHtml(c.notes)}</div>` : ""}
 
           <div class="btn-row">
-            <a class="btn btn-light" href="${telLink}" ${telLink === "#" ? `onclick="alert('Este cliente não tem telefone.'); return false;"` : ""}>📞 Ligar</a>
-            <a class="btn btn-green" href="${zapLink}" target="_blank" ${zapLink === "#" ? `onclick="alert('Este cliente não tem WhatsApp.'); return false;"` : ""}>💬 WhatsApp</a>
+            <a class="btn btn-light" href="${telLink}" ${telLink === "#" ? `onclick="alert('Este cliente não tem WhatsApp cadastrado.'); return false;"` : ""}>📞 Ligar</a>
+            <a class="btn btn-green" href="${zapLink}" target="_blank" ${zapLink === "#" ? `onclick="alert('Este cliente não tem WhatsApp cadastrado.'); return false;"` : ""}>💬 WhatsApp</a>
           </div>
 
           <div class="btn-row-3">
@@ -1365,8 +1362,7 @@
       const n = apenasNumeros(value);
       if (!n) return "#";
 
-      if (n.length === 10 || n.length === 11) return `tel:+55${n}`;
-      return `tel:+${n}`;
+      return `tel:${n}`;
     }
 
     function criarWhatsappLink(value) {
@@ -1556,8 +1552,11 @@
         return (order[a.returnStatus || "sem_ligar"] || 99) - (order[b.returnStatus || "sem_ligar"] || 99);
       });
 
-      document.getElementById("count-sem-ligar").textContent = state.clients.filter(c => (c.returnStatus || "sem_ligar") === "sem_ligar").length;
-      document.getElementById("count-comprou").textContent = state.clients.filter(c => (c.returnStatus || "sem_ligar") === "comprou").length;
+      document.getElementById("count-sem-ligar").textContent =
+        state.clients.filter(c => (c.returnStatus || "sem_ligar") === "sem_ligar").length;
+
+      document.getElementById("count-comprou").textContent =
+        state.clients.filter(c => (c.returnStatus || "sem_ligar") === "comprou").length;
 
       if (clients.length === 0) {
         container.innerHTML = `<div class="empty">Nenhum cliente encontrado.</div>`;
@@ -1608,6 +1607,9 @@
       container.innerHTML = networks.map(n => {
         const clientes = state.clients.filter(c => c.networkId === n.id);
 
+        const telLink = criarTelLink(n.whatsapp);
+        const zapLink = criarWhatsappLink(n.whatsapp);
+
         return `
           <article class="network-card">
             <div class="card-head">
@@ -1622,15 +1624,15 @@
             </div>
 
             <div class="tags">
-              ${n.phone ? `<span class="tag">Tel: ${escapeHtml(n.phone)}</span>` : ""}
+              ${n.phone ? `<span class="tag">Tel extra: ${escapeHtml(n.phone)}</span>` : ""}
               ${n.whatsapp ? `<span class="tag">WhatsApp: ${escapeHtml(n.whatsapp)}</span>` : ""}
             </div>
 
             ${n.notes ? `<div class="sale-note">${escapeHtml(n.notes)}</div>` : ""}
 
             <div class="btn-row">
-              <a class="btn btn-light" href="${criarTelLink(n.phone)}" ${criarTelLink(n.phone) === "#" ? `onclick="alert('Essa rede não tem telefone.'); return false;"` : ""}>📞 Ligar</a>
-              <a class="btn btn-green" href="${criarWhatsappLink(n.whatsapp)}" target="_blank" ${criarWhatsappLink(n.whatsapp) === "#" ? `onclick="alert('Essa rede não tem WhatsApp.'); return false;"` : ""}>💬 WhatsApp</a>
+              <a class="btn btn-light" href="${telLink}" ${telLink === "#" ? `onclick="alert('Essa rede não tem WhatsApp cadastrado.'); return false;"` : ""}>📞 Ligar</a>
+              <a class="btn btn-green" href="${zapLink}" target="_blank" ${zapLink === "#" ? `onclick="alert('Essa rede não tem WhatsApp cadastrado.'); return false;"` : ""}>💬 WhatsApp</a>
             </div>
 
             <div class="btn-row-3">
@@ -1685,9 +1687,83 @@
       }).join("");
     }
 
+    function exportarClientesExcel() {
+      if (!state.clients || state.clients.length === 0) {
+        alert("Nenhum cliente cadastrado para exportar.");
+        return;
+      }
+
+      const linhas = [];
+
+      linhas.push([
+        "Nome",
+        "Razão Social",
+        "CNPJ",
+        "Tipo",
+        "Código",
+        "Prazo",
+        "Contato",
+        "Telefone extra",
+        "WhatsApp",
+        "Dias que compra",
+        "Rede",
+        "Usa contato da rede",
+        "Status retorno",
+        "Última compra",
+        "Dias sem comprar",
+        "Observações"
+      ]);
+
+      state.clients.forEach(c => {
+        const rede = redeDoCliente(c);
+        const status = STATUS[c.returnStatus || "sem_ligar"]?.label || "Ainda sem ligar";
+
+        linhas.push([
+          nomeCliente(c),
+          c.razao || "",
+          c.cnpj || "",
+          c.type === "lead" ? "Lead" : "Cliente",
+          c.code || "",
+          c.prazo || "",
+          c.contact || "",
+          c.phone || "",
+          c.whatsapp || "",
+          formatarDias(c.buyDays),
+          rede ? rede.name : "",
+          c.useNetworkContact ? "Sim" : "Não",
+          status,
+          c.lastPurchaseDate || "",
+          textoDiasSemComprar(c),
+          c.notes || ""
+        ]);
+      });
+
+      const csv = linhas
+        .map(linha => linha.map(valor => {
+          const texto = String(valor ?? "").replaceAll('"', '""');
+          return `"${texto}"`;
+        }).join(";"))
+        .join("\n");
+
+      const blob = new Blob(["\ufeff" + csv], {
+        type: "text/csv;charset=utf-8;"
+      });
+
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `clientes-crm-${hojeISO()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      URL.revokeObjectURL(url);
+    }
+
     function exportarBackup() {
       const data = {
-        version: 3,
+        version: 4,
         exportedAt: agoraISO(),
         clients: state.clients,
         networks: state.networks,
@@ -1721,18 +1797,16 @@
       reader.onload = () => {
         try {
           const data = JSON.parse(reader.result);
+          const normalizado = normalizarBackup(data);
 
-          if (!Array.isArray(data.clients) || !Array.isArray(data.networks) || !Array.isArray(data.sales)) {
-            throw new Error("Formato inválido.");
+          if (!normalizado) {
+            alert("Backup inválido. Esse arquivo não parece ser um backup do CRM.");
+            return;
           }
 
           if (!confirm("Importar esse backup vai substituir os dados atuais deste aparelho. Continuar?")) return;
 
-          state = {
-            clients: data.clients,
-            networks: data.networks,
-            sales: data.sales
-          };
+          state = normalizado;
 
           limparVendasAntigas(false);
           salvarEstado();
@@ -1742,11 +1816,82 @@
 
           alert("Backup importado com sucesso.");
         } catch (e) {
-          alert("Arquivo de backup inválido.");
+          alert("Arquivo inválido. Verifique se é um arquivo .json exportado pelo CRM.");
         }
       };
 
       reader.readAsText(file);
+    }
+
+    function normalizarBackup(data) {
+      if (!data || typeof data !== "object") return null;
+
+      const base = data.data || data.backup || data.crm || data;
+
+      let clients =
+        base.clients ||
+        base.clientes ||
+        base.customers ||
+        base.leads ||
+        [];
+
+      let networks =
+        base.networks ||
+        base.redes ||
+        [];
+
+      let sales =
+        base.sales ||
+        base.vendas ||
+        base.historicoVendas ||
+        base.history ||
+        [];
+
+      if (!Array.isArray(clients)) clients = [];
+      if (!Array.isArray(networks)) networks = [];
+      if (!Array.isArray(sales)) sales = [];
+
+      return {
+        clients: clients.map(c => ({
+          id: c.id || uid("client"),
+          cnpj: c.cnpj || "",
+          name: c.name || c.nome || c.nomeFantasia || c.fantasia || c.razao || c.razaoSocial || "Cliente sem nome",
+          razao: c.razao || c.razaoSocial || c.razao_social || "",
+          type: c.type || c.tipo || "cliente",
+          code: c.code || c.codigo || "",
+          prazo: c.prazo || "",
+          contact: c.contact || c.contato || "",
+          phone: c.phone || c.telefone || "",
+          whatsapp: c.whatsapp || c.zap || "",
+          buyDays: c.buyDays || c.diasCompra || c.diasQueCompra || [],
+          networkId: c.networkId || c.redeId || c.rede_id || "",
+          useNetworkContact: Boolean(c.useNetworkContact || c.usarContatoRede),
+          notes: c.notes || c.observacoes || c.obs || "",
+          returnStatus: c.returnStatus || c.statusRetorno || c.retorno || "sem_ligar",
+          returnDate: c.returnDate || c.dataRetorno || null,
+          lastPurchaseDate: c.lastPurchaseDate || c.ultimaCompra || c.ultima_compra || null,
+          createdAt: c.createdAt || c.criadoEm || agoraISO()
+        })),
+
+        networks: networks.map(n => ({
+          id: n.id || uid("network"),
+          name: n.name || n.nome || "Rede sem nome",
+          contact: n.contact || n.contato || "",
+          phone: n.phone || n.telefone || "",
+          whatsapp: n.whatsapp || n.zap || "",
+          notes: n.notes || n.observacoes || n.obs || "",
+          createdAt: n.createdAt || n.criadoEm || agoraISO()
+        })),
+
+        sales: sales.map(s => ({
+          id: s.id || uid("sale"),
+          clientId: s.clientId || s.clienteId || s.cliente_id || "",
+          clientName: s.clientName || s.nomeCliente || s.cliente || "Cliente",
+          networkId: s.networkId || s.redeId || "",
+          date: s.date || s.data || s.createdAt || agoraISO(),
+          observation: s.observation || s.observacao || s.pedido || s.obs || ""
+        }))
+      };
     }
 
     function apagarTudo() {
@@ -1767,15 +1912,16 @@
 
       alert("Todos os dados foram apagados.");
     }
+
+    function registrarServiceWorker() {
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js").catch(error => {
+            console.log("Service Worker não registrado:", error);
+          });
+        });
+      }
+    }
   </script>
-  <script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(error => {
-        console.log("Service Worker não registrado:", error);
-      });
-    });
-  }
-</script>
 </body>
 </html>
