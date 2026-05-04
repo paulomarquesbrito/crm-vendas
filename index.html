@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>CRM de Ligações</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root{
+      --bg:#f4f1ea;
+      --panel:#fffaf1;
+      --card:#ffffff;
+      --text:#171717;
+      --muted:#6b7280;
+      --line:#e8dfd0;
+      --black:#111827;
+      --accent:#111827;
+      --accent2:#d6b477;
+      --green:#16a34a;
+      --red:#dc2626;
+      --yellow:#ca8a04;
+      --blue:#2563eb;
+      --gray:#6b7280;
+      --shadow:0 12px 30px rgba(17,24,39,.10);
+      --radius:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;background:var(--bg);color:var(--text);}
+    body{padding-bottom:92px;}
+    button,input,select,textarea{font:inherit}
+    button{border:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+    a{text-decoration:none;color:inherit}
+    .app{max-width:760px;margin:0 auto;padding:14px 12px 20px;}
+    .topbar{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,var(--bg) 75%,rgba(244,241,234,0));padding:10px 0 14px;margin-bottom:2px;}
+    .brand{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
+    .brand-title{font-size:24px;line-height:1.05;font-weight:900;letter-spacing:-.04em;}
+    .brand-sub{font-size:13px;color:var(--muted);margin-top:4px;font-weight:600}
+    .pill-total{background:var(--black);color:#fff;border-radius:999px;padding:9px 12px;font-size:13px;font-weight:900;white-space:nowrap;box-shadow:var(--shadow)}
+    .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+    .tab{min-height:48px;border-radius:16px;background:rgba(255,255,255,.65);border:1px solid var(--line);font-weight:900;font-size:12px;color:#333;display:flex;align-items:center;justify-content:center;padding:8px 6px;}
+    .tab.active{background:var(--black);color:#fff;border-color:var(--black);}
+    .toolbar{display:grid;gap:10px;margin:8px 0 14px;}
+    .search-row{display:grid;grid-template-columns:1fr auto;gap:9px;}
+    .input,.select,.textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:16px;padding:15px 14px;min-height:52px;color:var(--text);outline:none;font-weight:650;}
+    .textarea{min-height:92px;resize:vertical;line-height:1.35;}
+    .input:focus,.select:focus,.textarea:focus{border-color:#111827;box-shadow:0 0 0 3px rgba(17,24,39,.1)}
+    .btn{min-height:54px;border-radius:17px;padding:13px 16px;font-weight:950;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 18px rgba(17,24,39,.08);}
+    .btn:active{transform:scale(.985)}
+    .btn-primary{background:var(--black);color:#fff;}
+    .btn-light{background:#fff;color:var(--black);border:1px solid var(--line)}
+    .btn-danger{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+    .btn-green{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+    .btn-yellow{background:#fef3c7;color:#92400e;border:1px solid #fde68a}
+    .btn-blue{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe}
+    .btn-small{min-height:42px;border-radius:14px;padding:9px 12px;font-size:13px;box-shadow:none}
+    .section{display:none;}
+    .section.active{display:block;}
+    .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;}
+    .stat{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:14px;box-shadow:0 5px 18px rgba(17,24,39,.05)}
+    .stat-num{font-size:28px;font-weight:950;line-height:1;letter-spacing:-.04em}
+    .stat-label{font-size:12px;color:var(--muted);font-weight:900;margin-top:5px;text-transform:uppercase;letter-spacing:.04em}
+    .filters{display:flex;gap:8px;overflow-x:auto;padding:2px 1px 6px;scrollbar-width:none;}
+    .filters::-webkit-scrollbar{display:none}
+    .chip-btn{flex:0 0 auto;min-height:42px;border-radius:999px;padding:0 14px;background:#fff;border:1px solid var(--line);font-weight:950;font-size:13px;}
+    .chip-btn.active{background:var(--black);color:#fff;border-color:var(--black)}
+    .cards{display:grid;gap:12px;}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);position:relative;overflow:hidden;}
+    .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--accent2);}
+    .card.status-comprou::before{background:var(--green)}
+    .card.status-nao_comprou::before{background:var(--red)}
+    .card.status-nao_atendeu::before{background:var(--yellow)}
+    .card.status-retornar::before{background:var(--blue)}
+    .card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-left:4px;}
+    .client-title{font-size:20px;font-weight:950;letter-spacing:-.03em;line-height:1.1;margin:0 0 5px;}
+    .client-sub{font-size:13px;color:var(--muted);font-weight:700;line-height:1.25;}
+    .days-box{min-width:76px;border-radius:17px;background:#f9fafb;border:1px solid #e5e7eb;padding:9px;text-align:center;}
+    .days-num{font-size:21px;font-weight:950;line-height:1;color:#111827}
+    .days-label{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:950;line-height:1.05;margin-top:4px;}
+    .tags{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 12px 4px;}
+    .tag{border-radius:999px;padding:7px 10px;font-size:12px;font-weight:950;line-height:1;border:1px solid transparent;background:#f3f4f6;color:#374151;}
+    .tag.status{font-size:13px;padding:9px 11px;}
+    .tag-green{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+    .tag-red{background:#fee2e2;color:#991b1b;border-color:#fecaca}
+    .tag-yellow{background:#fef3c7;color:#92400e;border-color:#fde68a}
+    .tag-blue{background:#dbeafe;color:#1d4ed8;border-color:#bfdbfe}
+    .tag-gray{background:#f3f4f6;color:#374151;border-color:#e5e7eb}
+    .tag-black{background:#111827;color:#fff;border-color:#111827}
+    .actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px;}
+    .actions-4{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px;}
+    .contact-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0 8px;}
+    .empty{background:rgba(255,255,255,.6);border:1px dashed #cfc4b4;border-radius:22px;padding:24px;text-align:center;color:var(--muted);font-weight:800;line-height:1.35;}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(17,24,39,.52);z-index:50;display:none;align-items:flex-end;justify-content:center;padding:10px;}
+    .modal-backdrop.open{display:flex;}
+    .modal{background:var(--bg);border-radius:26px 26px 18px 18px;max-width:760px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 25px 80px rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.55);}
+    .modal-inner{padding:15px;}
+    .modal-title{font-size:23px;font-weight:950;letter-spacing:-.04em;margin:2px 0 12px;}
+    .form-grid{display:grid;gap:10px;}
+    .field label{display:block;font-size:12px;font-weight:950;color:#4b5563;margin:0 0 6px 3px;text-transform:uppercase;letter-spacing:.04em;}
+    .inline-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .cnpj-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;}
+    .weekday-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+    .day-toggle{min-height:44px;border-radius:14px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:950;}
+    .day-toggle.active{background:var(--black);color:#fff;border-color:var(--black)}
+    .form-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;position:sticky;bottom:0;background:linear-gradient(0deg,var(--bg) 80%,rgba(244,241,234,0));padding-top:12px;margin-top:4px;}
+    .notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:18px;padding:12px;font-size:13px;font-weight:800;line-height:1.35;margin-bottom:10px;}
+    .history-list{display:grid;gap:10px;}
+    .history-item{background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px;font-weight:750;}
+    .history-date{font-size:12px;color:var(--muted);font-weight:950;margin-bottom:4px;}
+    .toast{position:fixed;left:50%;bottom:94px;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;border-radius:999px;padding:12px 16px;font-weight:950;z-index:100;opacity:0;pointer-events:none;transition:.18s ease;box-shadow:0 10px 28px rgba(0,0,0,.25);max-width:92%;text-align:center;}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .bottom-safe{height:16px;}
+    .danger-zone{background:#fff;border:1px solid #fecaca;border-radius:22px;padding:14px;margin-top:14px;}
+    .muted-text{font-size:13px;color:var(--muted);font-weight:750;line-height:1.35;}
+    .switch-line{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;}
+    .switch-line input{width:22px;height:22px;}
+    .mini-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px;}
+    @media (min-width:640px){
+      .stats-grid{grid-template-columns:repeat(4,1fr)}
+      .actions,.actions-4,.contact-row{grid-template-columns:repeat(4,1fr)}
+      .modal-backdrop{align-items:center}.modal{border-radius:26px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div>
+          <div class="brand-title">CRM de Ligações</div>
+          <div class="brand-sub" id="todayLabel">Controle diário de clientes</div>
+        </div>
+        <div class="pill-total" id="totalBadge">0 clientes</div>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="hoje">Hoje</button>
+        <button class="tab" data-tab="clientes">Clientes</button>
+        <button class="tab" data-tab="redes">Redes</button>
+        <button class="tab" data-tab="backup">Backup</button>
+      </div>
+    </div>
+
+    <section id="sec-hoje" class="section active">
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="toolbar">
+        <div class="search-row">
+          <input id="searchToday" class="input" placeholder="Buscar cliente, código, cidade..." />
+          <button class="btn btn-primary" onclick="openClientModal()">+ Cliente</button>
+        </div>
+        <div class="filters" id="todayFilters"></div>
+        <button class="btn btn-danger" onclick="clearAllReturns()">Limpar todas as tags de retorno</button>
+      </div>
+      <div class="cards" id="todayCards"></div>
+    </section>
+
+    <section id="sec-clientes" class="section">
+      <div class="toolbar">
+        <div class="search-row">
+          <input id="searchClients" class="input" placeholder="Buscar cliente/lead..." />
+          <button class="btn btn-primary" onclick="openClientModal()">+ Cliente</button>
+        </div>
+        <div class="filters" id="clientFilters"></div>
+      </div>
+      <div class="cards" id="clientCards"></div>
+    </section>
+
+    <section id="sec-redes" class="section">
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="openNetworkModal()">+ Nova rede</button>
+        <input id="searchNetworks" class="input" placeholder="Buscar rede..." />
+      </div>
+      <div class="cards" id="networkCards"></div>
+    </section>
+
+    <section id="sec-backup" class="section">
+      <div class="card">
+        <h2 class="client-title">Backup local</h2>
+        <p class="muted-text">Exporte um arquivo JSON com todos os clientes, redes e histórico. Guarde esse arquivo no Google Drive, WhatsApp, pendrive ou onde preferir.</p>
+        <div class="actions">
+          <button class="btn btn-primary" onclick="exportBackup()">Exportar backup</button>
+          <button class="btn btn-light" onclick="document.getElementById('importFile').click()">Importar backup</button>
+        </div>
+        <input id="importFile" type="file" accept="application/json,.json" style="display:none" />
+      </div>
+      <div class="card">
+        <h2 class="client-title">Histórico recente</h2>
+        <div id="historyList" class="history-list"></div>
+      </div>
+      <div class="danger-zone">
+        <h2 class="client-title">Zona de risco</h2>
+        <p class="muted-text">Apaga todos os dados salvos neste navegador. Exporte um backup antes.</p>
+        <button class="btn btn-danger" onclick="resetDatabase()">Apagar tudo deste aparelho</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="clientModal">
+    <div class="modal">
+      <div class="modal-inner">
+        <div class="modal-title" id="clientModalTitle">Novo cliente/lead</div>
+        <div class="notice">Dica: o CRM salva automaticamente neste navegador. Para não perder nada, exporte backup com frequência.</div>
+        <form id="clientForm" class="form-grid">
+          <input type="hidden" id="clientId" />
+          <div class="cnpj-row">
+            <div class="field">
+              <label>CNPJ</label>
+              <input id="cnpj" class="input" inputmode="numeric" placeholder="00.000.000/0000-00" />
+            </div>
+            <button type="button" class="btn btn-primary" id="btnBuscarCnpj">Buscar</button>
+          </div>
+          <div class="field">
+            <label>Nome principal</label>
+            <input id="nome" class="input" required placeholder="Ex: Mercado São João" />
+          </div>
+          <div class="field">
+            <label>Razão social</label>
+            <input id="razao" class="input" placeholder="Preenchido pelo CNPJ ou manual" />
+          </div>
+          <div class="inline-grid">
+            <div class="field">
+              <label>Tipo</label>
+              <select id="tipo" class="select">
+                <option value="cliente">Cliente</option>
+                <option value="lead">Lead</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Código</label>
+              <input id="codigo" class="input" placeholder="Cód." />
+            </div>
+          </div>
+          <div class="inline-grid">
+            <div class="field">
+              <label>Prazo</label>
+              <input id="prazo" class="input" placeholder="Ex: 7 dias" />
+            </div>
+            <div class="field">
+              <label>Última compra</label>
+              <input id="ultimaCompra" type="date" class="input" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Dias que compra</label>
+            <div class="weekday-grid" id="weekdayGrid"></div>
+          </div>
+          <div class="inline-grid">
+            <div class="field">
+              <label>Contato</label>
+              <input id="contato" class="input" placeholder="Nome do comprador" />
+            </div>
+            <div class="field">
+              <label>WhatsApp</label>
+              <input id="whatsapp" class="input" inputmode="tel" placeholder="11999999999" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Telefone</label>
+            <input id="telefone" class="input" inputmode="tel" placeholder="Telefone para ligação" />
+          </div>
+          <div class="inline-grid">
+            <div class="field">
+              <label>Rede</label>
+              <select id="redeId" class="select"></select>
+            </div>
+            <div class="field">
+              <label>Cidade/UF</label>
+              <input id="cidadeUf" class="input" placeholder="Ex: Barueri/SP" />
+            </div>
+          </div>
+          <label class="switch-line">
+            <input id="usarContatoRede" type="checkbox" />
+            <span><b>Usar contato da rede</b><br><small class="muted-text">Se marcado, ligação/WhatsApp usam o contato da rede.</small></span>
+          </label>
+          <div class="field">
+            <label>Observações</label>
+            <textarea id="obs" class="textarea" placeholder="Ex: prefere cotação cedo, compra só dianteiro, etc."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-light" onclick="closeClientModal()">Cancelar</button>
+            <button class="btn btn-primary" type="submit">Salvar cliente</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="networkModal">
+    <div class="modal">
+      <div class="modal-inner">
+        <div class="modal-title" id="networkModalTitle">Nova rede</div>
+        <form id="networkForm" class="form-grid">
+          <input type="hidden" id="networkId" />
+          <div class="field">
+            <label>Nome da rede</label>
+            <input id="networkName" class="input" required placeholder="Ex: Rede Barbosa" />
+          </div>
+          <div class="inline-grid">
+            <div class="field">
+              <label>Contato principal</label>
+              <input id="networkContact" class="input" placeholder="Nome" />
+            </div>
+            <div class="field">
+              <label>WhatsApp</label>
+              <input id="networkWhatsapp" class="input" inputmode="tel" placeholder="11999999999" />
+            </div>
+          </div>
+          <div class="field">
+            <label>Telefone</label>
+            <input id="networkPhone" class="input" inputmode="tel" placeholder="Telefone" />
+          </div>
+          <div class="field">
+            <label>Observações</label>
+            <textarea id="networkObs" class="textarea"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-light" onclick="closeNetworkModal()">Cancelar</button>
+            <button class="btn btn-primary" type="submit">Salvar rede</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'crm_ligacoes_v1';
+const STATUS = {
+  sem_ligar: {label:'Ainda sem ligar', emoji:'⚪', cls:'tag-gray'},
+  comprou: {label:'Comprou', emoji:'🟢', cls:'tag-green'},
+  nao_comprou: {label:'Não comprou', emoji:'🔴', cls:'tag-red'},
+  nao_atendeu: {label:'Não atendeu', emoji:'🟡', cls:'tag-yellow'},
+  retornar: {label:'Retornar depois', emoji:'🔵', cls:'tag-blue'},
+};
+const WEEKDAYS = [
+  {id:1, short:'Seg', long:'Segunda'},
+  {id:2, short:'Ter', long:'Terça'},
+  {id:3, short:'Qua', long:'Quarta'},
+  {id:4, short:'Qui', long:'Quinta'},
+  {id:5, short:'Sex', long:'Sexta'},
+  {id:6, short:'Sáb', long:'Sábado'},
+  {id:0, short:'Dom', long:'Domingo'},
+];
+let db = loadDb();
+let activeTab = 'hoje';
+let todayFilter = 'pendentes';
+let clientFilter = 'todos';
+let selectedWeekdays = [];
+
+function defaultDb(){return {clientes:[], redes:[], historico:[], updatedAt:new Date().toISOString()};}
+function loadDb(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultDb(); }
+  catch(e){ return defaultDb(); }
+}
+function saveDb(){ db.updatedAt = new Date().toISOString(); localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); renderAll(); }
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)}
+function todayISO(){return new Date().toISOString().slice(0,10)}
+function brDate(dateStr){ if(!dateStr) return ''; const [y,m,d]=dateStr.slice(0,10).split('-'); return `${d}/${m}/${y}`; }
+function normalize(s){return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
+function digits(s){return (s||'').replace(/\D/g,'');}
+function moneySafe(s){return (s||'').toString();}
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2300); }
+function escapeHtml(str){return (str??'').toString().replace(/[&<>'"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+
+function setTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+tab).classList.add('active');
+  renderAll();
+}
+
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+document.getElementById('searchToday').addEventListener('input',renderToday);
+document.getElementById('searchClients').addEventListener('input',renderClients);
+document.getElementById('searchNetworks').addEventListener('input',renderNetworks);
+document.getElementById('importFile').addEventListener('change',importBackup);
+
+document.getElementById('btnBuscarCnpj').addEventListener('click',buscarCnpj);
+
+document.getElementById('clientForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const id = document.getElementById('clientId').value || uid();
+  const old = db.clientes.find(c=>c.id===id) || {};
+  const cliente = {
+    ...old,
+    id,
+    cnpj: document.getElementById('cnpj').value.trim(),
+    nome: document.getElementById('nome').value.trim(),
+    razao: document.getElementById('razao').value.trim(),
+    tipo: document.getElementById('tipo').value,
+    codigo: document.getElementById('codigo').value.trim(),
+    prazo: document.getElementById('prazo').value.trim(),
+    ultimaCompra: document.getElementById('ultimaCompra').value || old.ultimaCompra || '',
+    diasCompra: [...selectedWeekdays],
+    contato: document.getElementById('contato').value.trim(),
+    whatsapp: document.getElementById('whatsapp').value.trim(),
+    telefone: document.getElementById('telefone').value.trim(),
+    redeId: document.getElementById('redeId').value,
+    usarContatoRede: document.getElementById('usarContatoRede').checked,
+    cidadeUf: document.getElementById('cidadeUf').value.trim(),
+    obs: document.getElementById('obs').value.trim(),
+    statusRetorno: old.statusRetorno || 'sem_ligar',
+    retornoData: old.retornoData || '',
+    createdAt: old.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  const i = db.clientes.findIndex(c=>c.id===id);
+  if(i>=0) db.clientes[i]=cliente; else db.clientes.unshift(cliente);
+  closeClientModal();
+  saveDb();
+  toast('Cliente salvo');
+});
+
+document.getElementById('networkForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const id = document.getElementById('networkId').value || uid();
+  const old = db.redes.find(r=>r.id===id) || {};
+  const rede = {
+    ...old,
+    id,
+    nome: document.getElementById('networkName').value.trim(),
+    contato: document.getElementById('networkContact').value.trim(),
+    whatsapp: document.getElementById('networkWhatsapp').value.trim(),
+    telefone: document.getElementById('networkPhone').value.trim(),
+    obs: document.getElementById('networkObs').value.trim(),
+    createdAt: old.createdAt || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  const i = db.redes.findIndex(r=>r.id===id);
+  if(i>=0) db.redes[i]=rede; else db.redes.unshift(rede);
+  closeNetworkModal();
+  saveDb();
+  toast('Rede salva');
+});
+
+function setupWeekdays(days=[]){
+  selectedWeekdays = [...days];
+  const grid = document.getElementById('weekdayGrid');
+  grid.innerHTML = WEEKDAYS.map(d=>`<button type="button" class="day-toggle ${selectedWeekdays.includes(d.id)?'active':''}" data-day="${d.id}">${d.short}</button>`).join('');
+  grid.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{
+    const val = Number(btn.dataset.day);
+    if(selectedWeekdays.includes(val)) selectedWeekdays = selectedWeekdays.filter(x=>x!==val);
+    else selectedWeekdays.push(val);
+    setupWeekdays(selectedWeekdays);
+  });
+}
+
+function fillNetworkSelect(selected=''){
+  const select = document.getElementById('redeId');
+  select.innerHTML = `<option value="">Sem rede</option>` + db.redes.map(r=>`<option value="${r.id}" ${r.id===selected?'selected':''}>${escapeHtml(r.nome)}</option>`).join('');
+}
+
+function openClientModal(id=null){
+  fillNetworkSelect();
+  const c = id ? db.clientes.find(x=>x.id===id) : null;
+  document.getElementById('clientModalTitle').textContent = c ? 'Editar cliente/lead' : 'Novo cliente/lead';
+  document.getElementById('clientId').value = c?.id || '';
+  document.getElementById('cnpj').value = c?.cnpj || '';
+  document.getElementById('nome').value = c?.nome || '';
+  document.getElementById('razao').value = c?.razao || '';
+  document.getElementById('tipo').value = c?.tipo || 'cliente';
+  document.getElementById('codigo').value = c?.codigo || '';
+  document.getElementById('prazo').value = c?.prazo || '';
+  document.getElementById('ultimaCompra').value = c?.ultimaCompra || '';
+  document.getElementById('contato').value = c?.contato || '';
+  document.getElementById('whatsapp').value = c?.whatsapp || '';
+  document.getElementById('telefone').value = c?.telefone || '';
+  fillNetworkSelect(c?.redeId || '');
+  document.getElementById('usarContatoRede').checked = !!c?.usarContatoRede;
+  document.getElementById('cidadeUf').value = c?.cidadeUf || '';
+  document.getElementById('obs').value = c?.obs || '';
+  setupWeekdays(c?.diasCompra || []);
+  document.getElementById('clientModal').classList.add('open');
+}
+function closeClientModal(){document.getElementById('clientModal').classList.remove('open')}
+function openNetworkModal(id=null){
+  const r = id ? db.redes.find(x=>x.id===id) : null;
+  document.getElementById('networkModalTitle').textContent = r ? 'Editar rede' : 'Nova rede';
+  document.getElementById('networkId').value = r?.id || '';
+  document.getElementById('networkName').value = r?.nome || '';
+  document.getElementById('networkContact').value = r?.contato || '';
+  document.getElementById('networkWhatsapp').value = r?.whatsapp || '';
+  document.getElementById('networkPhone').value = r?.telefone || '';
+  document.getElementById('networkObs').value = r?.obs || '';
+  document.getElementById('networkModal').classList.add('open');
+}
+function closeNetworkModal(){document.getElementById('networkModal').classList.remove('open')}
+
+async function buscarCnpj(){
+  const cnpj = digits(document.getElementById('cnpj').value);
+  if(cnpj.length !== 14){toast('Digite um CNPJ válido com 14 números'); return;}
+  const btn = document.getElementById('btnBuscarCnpj');
+  const oldText = btn.textContent; btn.textContent='Buscando...'; btn.disabled=true;
+  try{
+    const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+    if(!res.ok) throw new Error('CNPJ não encontrado');
+    const data = await res.json();
+    document.getElementById('cnpj').value = data.cnpj || cnpj;
+    document.getElementById('razao').value = data.razao_social || '';
+    document.getElementById('nome').value = data.nome_fantasia || data.razao_social || document.getElementById('nome').value;
+    const phone = [data.ddd_telefone_1, data.ddd_telefone_2].find(Boolean) || '';
+    if(phone && !document.getElementById('telefone').value) document.getElementById('telefone').value = phone;
+    const cidadeUf = [data.municipio, data.uf].filter(Boolean).join('/');
+    if(cidadeUf) document.getElementById('cidadeUf').value = cidadeUf;
+    toast('CNPJ preenchido');
+  }catch(err){
+    toast('Não consegui buscar. Preencha manualmente.');
+  }finally{ btn.textContent=oldText; btn.disabled=false; }
+}
+
+function getNetwork(id){return db.redes.find(r=>r.id===id)}
+function effectiveContact(c){
+  const r = c.redeId ? getNetwork(c.redeId) : null;
+  if(r && c.usarContatoRede){
+    return {contato:r.contato||'', telefone:r.telefone||'', whatsapp:r.whatsapp||'', rede:r.nome||''};
+  }
+  return {contato:c.contato||'', telefone:c.telefone||'', whatsapp:c.whatsapp||'', rede:r?.nome||''};
+}
+function daysWithoutBuying(c){
+  if(!c.ultimaCompra) return null;
+  const start = new Date(c.ultimaCompra + 'T00:00:00');
+  const end = new Date(todayISO() + 'T00:00:00');
+  return Math.max(0, Math.floor((end - start) / 86400000));
+}
+function statusOf(c){ return c.statusRetorno || 'sem_ligar'; }
+function isPending(c){return statusOf(c)==='sem_ligar'}
+function buysToday(c){return (c.diasCompra||[]).includes(new Date().getDay())}
+function dayTags(c){ return (c.diasCompra||[]).map(id=>WEEKDAYS.find(d=>d.id===id)?.short).filter(Boolean).join('/'); }
+function matchesClient(c, q){
+  if(!q) return true;
+  const r = getNetwork(c.redeId);
+  const hay = [c.nome,c.razao,c.cnpj,c.codigo,c.prazo,c.contato,c.whatsapp,c.telefone,c.cidadeUf,c.obs,r?.nome].join(' ');
+  return normalize(hay).includes(normalize(q));
+}
+
+function renderStats(){
+  const total = db.clientes.length;
+  const pendentes = db.clientes.filter(c=>statusOf(c)==='sem_ligar').length;
+  const comprou = db.clientes.filter(c=>statusOf(c)==='comprou').length;
+  const hoje = db.clientes.filter(buysToday).length;
+  document.getElementById('statsGrid').innerHTML = [
+    ['Total', total], ['Pendentes', pendentes], ['Compraram', comprou], ['Compram hoje', hoje]
+  ].map(([label,num])=>`<div class="stat"><div class="stat-num">${num}</div><div class="stat-label">${label}</div></div>`).join('');
+}
+
+function renderFilterBar(){
+  const today = [
+    ['pendentes','Pendentes'],['todos','Todos'],['compram_hoje','Compram hoje'],['comprou','Comprou'],['nao_atendeu','Não atendeu'],['nao_comprou','Não comprou']
+  ];
+  document.getElementById('todayFilters').innerHTML = today.map(([id,label])=>`<button class="chip-btn ${todayFilter===id?'active':''}" onclick="todayFilter='${id}';renderToday()">${label}</button>`).join('');
+  const clients = [['todos','Todos'],['cliente','Clientes'],['lead','Leads'],['sem_rede','Sem rede'],['com_rede','Com rede']];
+  document.getElementById('clientFilters').innerHTML = clients.map(([id,label])=>`<button class="chip-btn ${clientFilter===id?'active':''}" onclick="clientFilter='${id}';renderClients()">${label}</button>`).join('');
+}
+
+function clientCard(c, compact=false){
+  const s = STATUS[statusOf(c)] || STATUS.sem_ligar;
+  const d = daysWithoutBuying(c);
+  const e = effectiveContact(c);
+  const rede = getNetwork(c.redeId);
+  const tel = digits(e.telefone || e.whatsapp);
+  const zapRaw = digits(e.whatsapp || e.telefone);
+  const zap = zapRaw.startsWith('55') ? zapRaw : (zapRaw ? '55'+zapRaw : '');
+  const daysText = d===null ? '—' : d;
+  const daysLabel = d===null ? 'sem compra' : 'dias sem comprar';
+  const tags = [];
+  tags.push(`<span class="tag status ${s.cls}">${s.emoji} ${s.label}</span>`);
+  tags.push(`<span class="tag ${c.tipo==='lead'?'tag-blue':'tag-black'}">${c.tipo==='lead'?'Lead':'Cliente'}</span>`);
+  if(c.codigo) tags.push(`<span class="tag tag-gray">Cód: ${escapeHtml(c.codigo)}</span>`);
+  if(c.prazo) tags.push(`<span class="tag tag-gray">Prazo: ${escapeHtml(c.prazo)}</span>`);
+  if(dayTags(c)) tags.push(`<span class="tag tag-gray">Compra: ${escapeHtml(dayTags(c))}</span>`);
+  if(e.contato) tags.push(`<span class="tag tag-gray">Contato: ${escapeHtml(e.contato)}</span>`);
+  if(rede) tags.push(`<span class="tag tag-blue">Rede: ${escapeHtml(rede.nome)}</span>`);
+  if(c.cidadeUf) tags.push(`<span class="tag tag-gray">${escapeHtml(c.cidadeUf)}</span>`);
+  return `<article class="card status-${statusOf(c)}">
+    <div class="card-head">
+      <div>
+        <h2 class="client-title">${escapeHtml(c.nome || 'Sem nome')}</h2>
+        <div class="client-sub">${escapeHtml(c.razao || c.cnpj || 'Sem razão social')}</div>
+      </div>
+      <div class="days-box"><div class="days-num">${daysText}</div><div class="days-label">${daysLabel}</div></div>
+    </div>
+    <div class="tags">${tags.join('')}</div>
+    <div class="contact-row">
+      ${tel ? `<a class="btn btn-light" href="tel:${tel}">📞 Ligar</a>` : `<button class="btn btn-light" onclick="toast('Sem telefone cadastrado')">📞 Ligar</button>`}
+      ${zap ? `<a class="btn btn-green" target="_blank" href="https://wa.me/${zap}">💬 WhatsApp</a>` : `<button class="btn btn-green" onclick="toast('Sem WhatsApp cadastrado')">💬 WhatsApp</button>`}
+      <button class="btn btn-light" onclick="openClientModal('${c.id}')">Editar</button>
+      <button class="btn btn-danger" onclick="deleteClient('${c.id}')">Excluir</button>
+    </div>
+    <div class="actions-4">
+      <button class="btn btn-green" onclick="markClient('${c.id}','comprou')">Comprou</button>
+      <button class="btn btn-danger" onclick="markClient('${c.id}','nao_comprou')">Não comprou</button>
+      <button class="btn btn-yellow" onclick="markClient('${c.id}','nao_atendeu')">Não atendeu</button>
+      <button class="btn btn-blue" onclick="markClient('${c.id}','retornar')">Retornar</button>
+    </div>
+    ${c.obs ? `<p class="muted-text" style="margin:10px 4px 0">${escapeHtml(c.obs)}</p>` : ''}
+  </article>`;
+}
+
+function sortedClients(list){
+  return [...list].sort((a,b)=>{
+    const ap = statusOf(a)==='sem_ligar' ? 0 : 1;
+    const bp = statusOf(b)==='sem_ligar' ? 0 : 1;
+    if(ap!==bp) return ap-bp;
+    const da = daysWithoutBuying(a) ?? -1;
+    const dbb = daysWithoutBuying(b) ?? -1;
+    return dbb-da;
+  });
+}
+
+function renderToday(){
+  renderStats(); renderFilterBar();
+  const q = document.getElementById('searchToday').value;
+  let list = db.clientes.filter(c=>matchesClient(c,q));
+  if(todayFilter==='pendentes') list = list.filter(c=>statusOf(c)==='sem_ligar');
+  if(todayFilter==='compram_hoje') list = list.filter(buysToday);
+  if(['comprou','nao_comprou','nao_atendeu','retornar'].includes(todayFilter)) list = list.filter(c=>statusOf(c)===todayFilter);
+  list = sortedClients(list);
+  document.getElementById('todayCards').innerHTML = list.length ? list.map(c=>clientCard(c)).join('') : `<div class="empty">Nenhum cliente aqui. Cadastre o primeiro ou mude o filtro.</div>`;
+}
+function renderClients(){
+  renderFilterBar();
+  const q = document.getElementById('searchClients').value;
+  let list = db.clientes.filter(c=>matchesClient(c,q));
+  if(clientFilter==='cliente') list = list.filter(c=>c.tipo==='cliente');
+  if(clientFilter==='lead') list = list.filter(c=>c.tipo==='lead');
+  if(clientFilter==='sem_rede') list = list.filter(c=>!c.redeId);
+  if(clientFilter==='com_rede') list = list.filter(c=>!!c.redeId);
+  document.getElementById('clientCards').innerHTML = list.length ? sortedClients(list).map(c=>clientCard(c)).join('') : `<div class="empty">Nenhum cliente encontrado.</div>`;
+}
+function renderNetworks(){
+  const q = normalize(document.getElementById('searchNetworks').value);
+  const redes = db.redes.filter(r=>!q || normalize([r.nome,r.contato,r.whatsapp,r.telefone,r.obs].join(' ')).includes(q));
+  document.getElementById('networkCards').innerHTML = redes.length ? redes.map(r=>{
+    const stores = db.clientes.filter(c=>c.redeId===r.id);
+    const pend = stores.filter(c=>statusOf(c)==='sem_ligar').length;
+    return `<article class="card">
+      <div class="card-head">
+        <div>
+          <h2 class="client-title">${escapeHtml(r.nome)}</h2>
+          <div class="client-sub">${stores.length} loja(s) vinculada(s) • ${pend} pendente(s)</div>
+        </div>
+        <button class="btn btn-small btn-light" onclick="openNetworkModal('${r.id}')">Editar</button>
+      </div>
+      <div class="tags">
+        ${r.contato?`<span class="tag tag-gray">Contato: ${escapeHtml(r.contato)}</span>`:''}
+        ${r.whatsapp?`<span class="tag tag-gray">WhatsApp: ${escapeHtml(r.whatsapp)}</span>`:''}
+        ${r.telefone?`<span class="tag tag-gray">Tel: ${escapeHtml(r.telefone)}</span>`:''}
+      </div>
+      <div class="actions-4">
+        <button class="btn btn-green" onclick="markNetwork('${r.id}','comprou')">Comprou rede</button>
+        <button class="btn btn-danger" onclick="markNetwork('${r.id}','nao_comprou')">Não comprou</button>
+        <button class="btn btn-yellow" onclick="markNetwork('${r.id}','nao_atendeu')">Não atendeu</button>
+        <button class="btn btn-blue" onclick="markNetwork('${r.id}','retornar')">Retornar</button>
+      </div>
+      <div class="mini-actions">
+        <button class="btn btn-small btn-light" onclick="showStoresOfNetwork('${r.id}')">Ver lojas</button>
+        <button class="btn btn-small btn-danger" onclick="deleteNetwork('${r.id}')">Excluir rede</button>
+      </div>
+      ${r.obs?`<p class="muted-text" style="margin:10px 4px 0">${escapeHtml(r.obs)}</p>`:''}
+    </article>`;
+  }).join('') : `<div class="empty">Nenhuma rede cadastrada.</div>`;
+}
+function showStoresOfNetwork(id){
+  setTab('clientes');
+  const r = getNetwork(id);
+  document.getElementById('searchClients').value = r?.nome || '';
+  clientFilter='com_rede';
+  renderClients();
+}
+function renderHistory(){
+  const list = [...db.historico].slice(0,60);
+  document.getElementById('historyList').innerHTML = list.length ? list.map(h=>{
+    const st = STATUS[h.status] || STATUS.sem_ligar;
+    return `<div class="history-item"><div class="history-date">${new Date(h.createdAt).toLocaleString('pt-BR')}</div><b>${escapeHtml(h.nome)}</b><br><span class="tag ${st.cls}">${st.emoji} ${st.label}</span>${h.contexto?` <span class="tag tag-gray">${escapeHtml(h.contexto)}</span>`:''}</div>`
+  }).join('') : `<div class="empty">Sem histórico ainda.</div>`;
+}
+function renderAll(){
+  document.getElementById('totalBadge').textContent = `${db.clientes.length} cliente${db.clientes.length===1?'':'s'}`;
+  const dt = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('todayLabel').textContent = dt.charAt(0).toUpperCase()+dt.slice(1);
+  renderStats(); renderFilterBar(); renderToday(); renderClients(); renderNetworks(); renderHistory();
+}
+
+function addHistory(item){ db.historico.unshift({id:uid(),createdAt:new Date().toISOString(),...item}); }
+function markClient(id,status,contexto='individual'){
+  const c = db.clientes.find(x=>x.id===id); if(!c) return;
+  c.statusRetorno = status; c.retornoData = todayISO(); c.updatedAt = new Date().toISOString();
+  if(status==='comprou') c.ultimaCompra = todayISO();
+  addHistory({clienteId:id,nome:c.nome,status,contexto});
+  saveDb(); toast(`${c.nome}: ${STATUS[status].label}`);
+}
+function markNetwork(id,status){
+  const r = getNetwork(id); if(!r) return;
+  const stores = db.clientes.filter(c=>c.redeId===id);
+  if(!stores.length){ toast('Essa rede não tem lojas vinculadas'); return; }
+  if(!confirm(`Aplicar "${STATUS[status].label}" para ${stores.length} loja(s) da rede ${r.nome}?`)) return;
+  stores.forEach(c=>{
+    c.statusRetorno=status; c.retornoData=todayISO(); c.updatedAt=new Date().toISOString();
+    if(status==='comprou') c.ultimaCompra=todayISO();
+    addHistory({clienteId:c.id, redeId:id, nome:c.nome, status, contexto:`rede: ${r.nome}`});
+  });
+  saveDb(); toast('Status aplicado na rede');
+}
+function clearAllReturns(){
+  if(!db.clientes.length){toast('Nenhum cliente cadastrado'); return;}
+  if(!confirm('Limpar a tag de retorno de TODOS os clientes? O histórico será mantido.')) return;
+  db.clientes.forEach(c=>{c.statusRetorno='sem_ligar'; c.retornoData=''; c.updatedAt=new Date().toISOString();});
+  addHistory({nome:'Todos os clientes',status:'sem_ligar',contexto:'limpeza geral de retornos'});
+  saveDb(); toast('Tags de retorno limpas');
+}
+function deleteClient(id){
+  const c = db.clientes.find(x=>x.id===id); if(!c) return;
+  if(!confirm(`Excluir ${c.nome}?`)) return;
+  db.clientes = db.clientes.filter(x=>x.id!==id);
+  saveDb(); toast('Cliente excluído');
+}
+function deleteNetwork(id){
+  const r = getNetwork(id); if(!r) return;
+  if(!confirm(`Excluir a rede ${r.nome}? As lojas não serão apagadas, só ficarão sem rede.`)) return;
+  db.redes = db.redes.filter(x=>x.id!==id);
+  db.clientes.forEach(c=>{ if(c.redeId===id){c.redeId=''; c.usarContatoRede=false;} });
+  saveDb(); toast('Rede excluída');
+}
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `backup-crm-ligacoes-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+  toast('Backup exportado');
+}
+function importBackup(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const imported = JSON.parse(reader.result);
+      if(!imported || !Array.isArray(imported.clientes) || !Array.isArray(imported.redes)) throw new Error('Arquivo inválido');
+      if(!confirm('Importar este backup? Ele vai substituir os dados atuais deste aparelho.')) return;
+      db = {historico:[], ...imported, updatedAt:new Date().toISOString()};
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      renderAll(); toast('Backup importado');
+    }catch(err){toast('Arquivo de backup inválido');}
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+function resetDatabase(){
+  if(!confirm('Tem certeza que quer apagar TODOS os dados deste aparelho?')) return;
+  if(!confirm('Última confirmação: isso não tem volta sem backup.')) return;
+  db = defaultDb(); localStorage.removeItem(STORAGE_KEY); renderAll(); toast('Dados apagados');
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+renderAll();
+</script>
+</body>
+</html>
