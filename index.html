@@ -6,11 +6,14 @@
   <title>CRM Vendas</title>
 
   <meta name="theme-color" content="#e86d00" />
+  <meta name="color-scheme" content="light" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="CRM Vendas" />
 
   <style>
     :root {
+      color-scheme: light !important;
+
       --bg: #f2f4f7;
       --card: #ffffff;
       --orange: #e86d00;
@@ -36,11 +39,17 @@
       box-sizing: border-box;
     }
 
+    html {
+      color-scheme: light !important;
+      background: #f2f4f7 !important;
+    }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #f2f4f7 !important;
+      color: #21304a !important;
+      color-scheme: light !important;
     }
 
     button,
@@ -48,6 +57,20 @@
     select,
     textarea {
       font: inherit;
+      color-scheme: light !important;
+    }
+
+    input,
+    select,
+    textarea {
+      background-color: #f8fafc !important;
+      color: #21304a !important;
+      -webkit-text-fill-color: #21304a !important;
+    }
+
+    option {
+      background: #ffffff !important;
+      color: #21304a !important;
     }
 
     button {
@@ -61,19 +84,21 @@
       margin: 0 auto;
       min-height: 100vh;
       padding: 8px;
+      background: #f2f4f7 !important;
     }
 
     .shell {
-      background: var(--card);
+      background: #ffffff !important;
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--shadow);
       min-height: calc(100vh - 16px);
+      color: #21304a !important;
     }
 
     .header {
-      background: linear-gradient(135deg, #ff7a00, #d96500);
-      color: white;
+      background: linear-gradient(135deg, #ff7a00, #d96500) !important;
+      color: white !important;
       padding: 24px 20px 20px;
     }
 
@@ -83,6 +108,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      color: white !important;
     }
 
     .header p {
@@ -90,12 +116,13 @@
       opacity: 0.92;
       font-size: 14px;
       font-weight: 500;
+      color: white !important;
     }
 
     .tabs {
       display: flex;
       overflow-x: auto;
-      background: white;
+      background: #ffffff !important;
       border-bottom: 1px solid var(--border);
       scrollbar-width: none;
     }
@@ -106,8 +133,8 @@
 
     .tab {
       padding: 14px 16px;
-      color: #4a5d78;
-      background: white;
+      color: #4a5d78 !important;
+      background: #ffffff !important;
       font-weight: 700;
       white-space: nowrap;
       border-bottom: 3px solid transparent;
@@ -115,13 +142,15 @@
     }
 
     .tab.active {
-      color: var(--orange);
+      color: var(--orange) !important;
       border-bottom-color: var(--orange);
     }
 
     .page {
       display: none;
       padding: 18px;
+      background: #ffffff !important;
+      color: #21304a !important;
     }
 
     .page.active {
@@ -131,10 +160,11 @@
     .section-title {
       margin: 0 0 12px;
       font-size: 18px;
+      color: #21304a !important;
     }
 
     .subtext {
-      color: var(--muted);
+      color: #718096 !important;
       font-size: 13px;
       line-height: 1.4;
       margin: 0 0 14px;
@@ -156,10 +186,11 @@
     .select,
     .textarea {
       width: 100%;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border) !important;
       border-radius: 14px;
-      background: #f8fafc;
-      color: var(--text);
+      background: #f8fafc !important;
+      color: #21304a !important;
+      -webkit-text-fill-color: #21304a !important;
       padding: 14px 14px;
       outline: none;
       min-height: 50px;
@@ -173,9 +204,9 @@
     .input:focus,
     .select:focus,
     .textarea:focus {
-      border-color: var(--orange);
+      border-color: var(--orange) !important;
       box-shadow: 0 0 0 3px rgba(232, 109, 0, 0.13);
-      background: white;
+      background: #ffffff !important;
     }
 
     .form-card,
@@ -183,16 +214,13 @@
     .network-card,
     .sale-card,
     .notice-card {
-      background: white;
+      background: #ffffff !important;
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 14px;
       margin-bottom: 14px;
       box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
-    }
-
-    .form-card {
-      background: #fff;
+      color: #21304a !important;
     }
 
     .field {
@@ -203,7 +231,7 @@
       display: block;
       font-size: 12px;
       font-weight: 800;
-      color: #52657f;
+      color: #52657f !important;
       margin-bottom: 7px;
       text-transform: uppercase;
       letter-spacing: 0.02em;
@@ -223,13 +251,13 @@
 
     .day-pill {
       border: 1px solid var(--border);
-      background: #f8fafc;
+      background: #f8fafc !important;
       border-radius: 14px;
       padding: 10px 8px;
       text-align: center;
       font-weight: 800;
       font-size: 13px;
-      color: #52657f;
+      color: #52657f !important;
       user-select: none;
     }
 
@@ -238,9 +266,9 @@
     }
 
     .day-pill.active {
-      background: var(--orange-light);
+      background: var(--orange-light) !important;
       border-color: var(--orange);
-      color: var(--orange-dark);
+      color: var(--orange-dark) !important;
     }
 
     .btn {
@@ -258,48 +286,48 @@
     }
 
     .btn-primary {
-      background: var(--orange);
-      color: white;
+      background: var(--orange) !important;
+      color: white !important;
     }
 
     .btn-primary:active {
-      background: var(--orange-dark);
+      background: var(--orange-dark) !important;
     }
 
     .btn-secondary {
-      background: #9aa9bc;
-      color: white;
+      background: #9aa9bc !important;
+      color: white !important;
     }
 
     .btn-light {
-      background: #f1f5f9;
-      color: var(--text);
+      background: #f1f5f9 !important;
+      color: #21304a !important;
       border: 1px solid var(--border);
     }
 
     .btn-green {
-      background: var(--green);
-      color: white;
+      background: var(--green) !important;
+      color: white !important;
     }
 
     .btn-red {
-      background: var(--red);
-      color: white;
+      background: var(--red) !important;
+      color: white !important;
     }
 
     .btn-yellow {
-      background: #d99400;
-      color: white;
+      background: #d99400 !important;
+      color: white !important;
     }
 
     .btn-blue {
-      background: var(--blue);
-      color: white;
+      background: var(--blue) !important;
+      color: white !important;
     }
 
     .btn-danger-soft {
-      background: var(--red-bg);
-      color: var(--red);
+      background: var(--red-bg) !important;
+      color: var(--red) !important;
     }
 
     .btn-row {
@@ -329,11 +357,12 @@
       font-weight: 950;
       margin: 0;
       line-height: 1.2;
+      color: #21304a !important;
     }
 
     .client-sub {
       margin: 4px 0 0;
-      color: var(--muted);
+      color: #718096 !important;
       font-size: 13px;
       line-height: 1.35;
     }
@@ -354,34 +383,34 @@
       font-size: 12px;
       font-weight: 900;
       line-height: 1;
-      background: var(--gray-bg);
-      color: #52657f;
+      background: var(--gray-bg) !important;
+      color: #52657f !important;
       max-width: 100%;
     }
 
     .tag.orange {
-      background: var(--orange-light);
-      color: var(--orange-dark);
+      background: var(--orange-light) !important;
+      color: var(--orange-dark) !important;
     }
 
     .tag.green {
-      background: var(--green-bg);
-      color: var(--green);
+      background: var(--green-bg) !important;
+      color: var(--green) !important;
     }
 
     .tag.red {
-      background: var(--red-bg);
-      color: var(--red);
+      background: var(--red-bg) !important;
+      color: var(--red) !important;
     }
 
     .tag.yellow {
-      background: var(--yellow-bg);
-      color: var(--yellow);
+      background: var(--yellow-bg) !important;
+      color: var(--yellow) !important;
     }
 
     .tag.blue {
-      background: var(--blue-bg);
-      color: var(--blue);
+      background: var(--blue-bg) !important;
+      color: var(--blue) !important;
     }
 
     .tag.big {
@@ -392,19 +421,19 @@
     .empty {
       text-align: center;
       padding: 28px 12px;
-      color: var(--muted);
-      background: #f8fafc;
+      color: #718096 !important;
+      background: #f8fafc !important;
       border: 1px dashed var(--border);
       border-radius: 18px;
       margin-top: 12px;
     }
 
     .sale-note {
-      background: #f8fafc;
+      background: #f8fafc !important;
       border: 1px solid var(--border);
       padding: 12px;
       border-radius: 14px;
-      color: #334155;
+      color: #334155 !important;
       line-height: 1.35;
       margin-top: 8px;
       white-space: pre-wrap;
@@ -430,22 +459,24 @@
     }
 
     .modal {
-      background: white;
+      background: #ffffff !important;
       width: 100%;
       max-width: 520px;
       border-radius: 22px;
       padding: 18px;
       box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+      color: #21304a !important;
     }
 
     .modal h3 {
       margin: 0 0 8px;
       font-size: 20px;
+      color: #21304a !important;
     }
 
     .modal p {
       margin: 0 0 12px;
-      color: var(--muted);
+      color: #718096 !important;
       font-size: 14px;
       line-height: 1.4;
     }
@@ -465,10 +496,11 @@
 
     .danger-zone {
       border: 1px solid #fecaca;
-      background: #fff7f7;
+      background: #fff7f7 !important;
       border-radius: 18px;
       padding: 14px;
       margin-top: 14px;
+      color: #21304a !important;
     }
 
     .count-box {
@@ -479,23 +511,84 @@
     }
 
     .count {
-      background: #f8fafc;
+      background: #f8fafc !important;
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 13px;
+      color: #21304a !important;
     }
 
     .count strong {
       display: block;
       font-size: 23px;
-      color: var(--orange);
+      color: var(--orange) !important;
     }
 
     .count span {
-      color: var(--muted);
+      color: #718096 !important;
       font-size: 12px;
       font-weight: 800;
       text-transform: uppercase;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      html,
+      body,
+      .app {
+        background: #f2f4f7 !important;
+        color: #21304a !important;
+        color-scheme: light !important;
+      }
+
+      .shell,
+      .page,
+      .form-card,
+      .client-card,
+      .network-card,
+      .sale-card,
+      .notice-card,
+      .modal {
+        background: #ffffff !important;
+        color: #21304a !important;
+      }
+
+      .input,
+      .select,
+      .textarea,
+      input,
+      select,
+      textarea {
+        background: #f8fafc !important;
+        color: #21304a !important;
+        border-color: #dbe3ef !important;
+        -webkit-text-fill-color: #21304a !important;
+      }
+
+      .tabs,
+      .tab {
+        background: #ffffff !important;
+      }
+
+      .client-name,
+      .section-title,
+      .modal h3 {
+        color: #21304a !important;
+      }
+
+      .client-sub,
+      .subtext,
+      .field label,
+      .modal p {
+        color: #718096 !important;
+      }
+
+      .sale-note,
+      .empty,
+      .count,
+      .day-pill {
+        background: #f8fafc !important;
+        color: #334155 !important;
+      }
     }
 
     @media (max-width: 390px) {
@@ -739,7 +832,7 @@
           </div>
 
           <div class="danger-zone">
-            <h3 style="margin:0 0 8px">Zona de cuidado</h3>
+            <h3 style="margin:0 0 8px;color:#21304a !important;">Zona de cuidado</h3>
             <p class="subtext">Isso apaga todos os clientes, redes e vendas deste navegador.</p>
             <button class="btn btn-danger-soft" onclick="apagarTudo()">🗑️ Apagar tudo</button>
           </div>
@@ -766,7 +859,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "crm_vendas_mobile_v2";
+    const STORAGE_KEY = "crm_vendas_mobile_v3";
 
     const STATUS = {
       sem_ligar: { label: "Ainda sem ligar", color: "", emoji: "⚪" },
@@ -801,7 +894,9 @@
     }
 
     function carregarEstado() {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const rawV3 = localStorage.getItem("crm_vendas_mobile_v3");
+      const rawV2 = localStorage.getItem("crm_vendas_mobile_v2");
+      const raw = rawV3 || rawV2;
 
       if (!raw) {
         return {
@@ -1591,7 +1686,7 @@
 
     function exportarBackup() {
       const data = {
-        version: 2,
+        version: 3,
         exportedAt: agoraISO(),
         clients: state.clients,
         networks: state.networks,
