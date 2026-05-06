@@ -1127,13 +1127,27 @@
       const c = state.clients.find(item => item.id === id);
       if (!c) return;
 
-      if (!confirm(`Apagar o cliente "${nomeCliente(c)}"?`)) return;
+      const vendasDoCliente = state.sales.filter(s => s.clientId === id).length;
+      const detalheVendas = vendasDoCliente > 0
+        ? `\n\nTambém serão apagada(s) ${vendasDoCliente} venda(s) vinculada(s) a esse cliente.`
+        : "";
+
+      if (!confirm(`Excluir o cliente "${nomeCliente(c)}"?${detalheVendas}\n\nEssa ação não pode ser desfeita sem backup.`)) return;
 
       state.clients = state.clients.filter(item => item.id !== id);
       state.sales = state.sales.filter(s => s.clientId !== id);
 
+      if (document.getElementById("client-id").value === id) {
+        limparFormularioCliente();
+      }
+
+      if (vendaClienteIdAtual === id) {
+        fecharModalVenda();
+      }
+
       salvarEstado();
       renderizarTudo();
+      alert("Cliente excluído.");
     }
 
     function limparFormularioCliente() {
@@ -1352,7 +1366,7 @@
           </div>
 
           ${origem === "clientes" ? `
-            <button class="btn btn-danger-soft" style="margin-top:10px" onclick="removerCliente('${c.id}')">Apagar cliente</button>
+            <button class="btn btn-danger-soft" style="margin-top:10px" onclick="removerCliente('${c.id}')">🗑️ Excluir cliente</button>
           ` : ""}
         </article>
       `;
