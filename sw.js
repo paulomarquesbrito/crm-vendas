@@ -1,4 +1,4 @@
-const CACHE_NAME = "crm-vendas-cache-v1";
+const CACHE_NAME = "crm-vendas-cache-v2-excluir-clientes";
 
 const FILES_TO_CACHE = [
   "./",
